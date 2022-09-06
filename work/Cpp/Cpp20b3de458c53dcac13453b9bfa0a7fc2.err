@@ -1,0 +1,3 @@
+Cpp20b3de458c53dcac13453b9bfa0a7fc2.cpp:1:6: error: expected constructor, destructor, or type conversion before ‘(’ token
+    1 | print("hell")
+      |      ^

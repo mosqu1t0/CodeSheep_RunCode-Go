@@ -7,8 +7,8 @@ import (
 )
 
 func FoldExists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
+	f, err := os.Stat(path)
+	if err == nil && f.IsDir() {
 		return true, nil
 	}
 	if os.IsNotExist(err) {
@@ -43,4 +43,12 @@ func FileReadN(file *os.File, N int64) (string, error) {
 		return "", bufErr
 	}
 	return string(buf), nil
+}
+
+func DeleteCodes(paths ...string) {
+	for _, path := range paths {
+		if path != "" {
+			os.Remove(path)
+		}
+	}
 }

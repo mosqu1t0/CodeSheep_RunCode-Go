@@ -49,7 +49,6 @@ func (controller CodeController) HandleRunCode(c *gin.Context) {
 	sh := configs.WorkPath + utils.LangMapFirSh(code.Language)
 	if !utils.IsNeedsCompile(code.Language) {
 		cmd = exec.Command(sh, code.Input, id)
-		log.Println(sh, "cmd")
 	} else {
 		cmd = exec.Command(sh, id)
 	}
@@ -65,11 +64,22 @@ func (controller CodeController) HandleRunCode(c *gin.Context) {
 	if ok {
 		dealWrongCode(pathName, prefix, code.Language, c)
 		return
-	} else if !utils.IsNeedsCompile(code.Code) {
+	} else if !utils.IsNeedsCompile(code.Language) {
 		dealGoodCode(pathName, prefix, code.Language, "", c)
 		return
 	}
 
+	// second time run sh, run o
+	sh = configs.WorkPath + utils.LangMapSecSh(code.Language)
+	cmd = exec.Command(sh, code.Input, id)
+	cmd.Run()
+
+	exePath := pathName + "/" + prefix
+	if ok, exeErr := utils.FileExists(exePath); ok {
+		dealGoodCode(pathName, prefix, code.Language, "", c)
+	} else {
+		dealErr("Error when exec bin: ", exeErr, c)
+	}
 }
 
 // deal with io err
@@ -84,7 +94,10 @@ func dealErr(tip string, err error, c *gin.Context) {
 
 // deal with compile err
 func dealWrongCode(path, prefix, lang string, c *gin.Context) {
-	errMsg, errErr := ioutil.ReadFile(path + "/" + prefix + ".err")
+	errPath := path + "/" + prefix + ".err"
+	outPath := path + "/" + prefix + ".out"
+	codePath := path + "/" + prefix + utils.LangMapSuffix(lang)
+	errMsg, errErr := ioutil.ReadFile(errPath)
 	if errErr != nil {
 		dealErr("Error when read err file: ", errErr, c)
 	}
@@ -93,7 +106,8 @@ func dealWrongCode(path, prefix, lang string, c *gin.Context) {
 		dealGoodCode(path, prefix, lang, string(errMsg), c)
 	}
 
-	//TODO delete file
+	go utils.DeleteCodes(errPath, codePath, outPath)
+
 	c.JSON(http.StatusOK, gin.H{
 		"code": configs.NopCode,
 		"msg":  configs.NopMsg,
@@ -107,11 +121,10 @@ func dealGoodCode(path, prefix, lang, errinfo string, c *gin.Context) {
 	comOutPath := path + "/" + prefix + ".out"
 	comInfoPath := path + "/" + prefix + ".info"
 	comCodePath := path + "/" + prefix + utils.LangMapSuffix(lang)
-
-	log.Println(comErrPath)
-	log.Println(comOutPath)
-	log.Println(comInfoPath)
-	log.Println(comCodePath)
+	var comExePath string
+	if utils.IsNeedsCompile(lang) {
+		comExePath = path + "/" + prefix
+	}
 
 	var outContent string
 	if ok, _ := utils.FileExists(comOutPath); ok {
@@ -141,11 +154,13 @@ func dealGoodCode(path, prefix, lang, errinfo string, c *gin.Context) {
 
 		if errinfo == configs.LongInfo {
 			//TODO email
+			go utils.SendBugEmail(prefix)
 			result = gin.H{
 				"code": configs.WrongCode,
 				"msg":  configs.WrongMsg,
 				"res":  outContent,
 			}
+			comCodePath = ""
 		} else {
 			result = gin.H{
 				"code": configs.LongCode,
@@ -153,9 +168,11 @@ func dealGoodCode(path, prefix, lang, errinfo string, c *gin.Context) {
 				"res":  outContent,
 			}
 		}
-		// TODO rm code shit
-
+	} else {
+		comInfoPath = ""
 	}
+	go utils.DeleteCodes(comOutPath, comCodePath, comInfoPath, comErrPath, comExePath)
+
 	c.JSON(http.StatusOK, result)
 
 }
