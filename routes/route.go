@@ -16,7 +16,6 @@ func init() {
 }
 
 func Start(port string) {
-
 	router := gin.Default()
 	router.Use(middles.SetSessionId())
 

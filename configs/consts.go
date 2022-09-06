@@ -13,6 +13,7 @@ const (
 	WrongMsg  = "出错啦，快联系管理员！ (´･д･｀)"
 
 	LongInfo       = "killWrong"
+	Domain         = "www.codesheep.xyz"
 	ContentMaxSize = 1 << 20
 )
 
