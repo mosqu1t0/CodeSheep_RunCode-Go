@@ -1,6 +1,6 @@
 .PHONY: build
 
-FILENAME=CodeSheep_runcode-1.0
+FILENAME=CodeSheep_runcode-2.1
 SERVER_IP=81.68.156.124
 
 all: build
@@ -9,9 +9,6 @@ build:
 	@echo "finish <3"
 
 deploy: ./build/${FILENAME}
-	cp -r work ./build/
-	if [ -e ./build/codesheep.tar.gz ]; then rm ./build/codesheep.tar.gz; fi
-	tar -zcvf ./build/codesheep.tar.gz ./build/*
-	scp ./build/codesheep.tar.gz root@${SERVER_IP}:~/CodeSheep/
+	scp ./build/${FILENAME} root@${SERVER_IP}:~/CodeSheep/
 
 

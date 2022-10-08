@@ -32,23 +32,27 @@ func init() {
 
 	path["c"] = "C"
 	path["cpp"] = "Cpp"
+	path["rust"] = "Rust"
 	path["golang"] = "Go"
 	path["python"] = "Py"
 	path["javascript"] = "Js"
 
 	suffix["c"] = ".c"
 	suffix["cpp"] = ".cpp"
+	suffix["rust"] = ".rs"
 	suffix["golang"] = ".go"
 	suffix["python"] = ".py"
 	suffix["javascript"] = ".js"
 
 	firSh["c"] = "compileC.sh"
 	firSh["cpp"] = "compileCpp.sh"
+	firSh["rust"] = "compileRust.sh"
 	firSh["golang"] = "compileGo.sh"
 	firSh["python"] = "runPy.sh"
 	firSh["javascript"] = "runJs.sh"
 
 	secSh["c"] = "runC.sh"
 	secSh["cpp"] = "runCpp.sh"
+	secSh["rust"] = "runRust.sh"
 	secSh["golang"] = "runGo.sh"
 }

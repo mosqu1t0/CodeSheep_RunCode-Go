@@ -18,7 +18,7 @@ func SetSessionId() gin.HandlerFunc {
 		_, err := c.Cookie("GSESSIONID")
 		if err != nil {
 			sessionid := generateID()
-			c.SetCookie("GSESSIONID", sessionid, 0, "/", configs.Domain, false, true)
+			c.SetCookie("GSESSIONID", sessionid, 0, "/", configs.Domain, true, true)
 		}
 	}
 }
@@ -27,7 +27,7 @@ func GetSessionId(c *gin.Context) string {
 	id, err := c.Cookie("GSESSIONID")
 	if err != nil {
 		id = generateID()
-		c.SetCookie("GSESSIONID", id, 0, "/", configs.Domain, false, true)
+		c.SetCookie("GSESSIONID", id, 0, "/", configs.Domain, true, true)
 	}
 	return id
 }
